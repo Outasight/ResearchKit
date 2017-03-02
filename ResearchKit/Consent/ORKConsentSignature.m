@@ -46,6 +46,7 @@
     sig.title = title;
     sig.givenName = givenName;
     sig.familyName = familyName;
+    sig.birthdate = @"huhu";
     sig.signatureImage = signatureImage;
     sig.signatureDate = signatureDate;
     sig.identifier = identifier;
@@ -88,6 +89,7 @@
         ORK_DECODE_OBJ_CLASS(aDecoder, title, NSString);
         ORK_DECODE_OBJ_CLASS(aDecoder, givenName, NSString);
         ORK_DECODE_OBJ_CLASS(aDecoder, familyName, NSString);
+        ORK_DECODE_OBJ_CLASS(aDecoder, birthdate, NSString);
         ORK_DECODE_OBJ_CLASS(aDecoder, signatureDate, NSString);
         ORK_DECODE_BOOL(aDecoder, requiresName);
         ORK_DECODE_BOOL(aDecoder, requiresSignatureImage);
@@ -102,6 +104,7 @@
     ORK_ENCODE_OBJ(aCoder, title);
     ORK_ENCODE_OBJ(aCoder, givenName);
     ORK_ENCODE_OBJ(aCoder, familyName);
+    ORK_ENCODE_OBJ(aCoder, birthdate);
     ORK_ENCODE_OBJ(aCoder, signatureDate);
     ORK_ENCODE_BOOL(aCoder, requiresName);
     ORK_ENCODE_BOOL(aCoder, requiresSignatureImage);
@@ -127,7 +130,7 @@
 }
 
 - (NSUInteger)hash {
-    return [_identifier hash] ^ [_title hash] ^ [_givenName hash] ^ [_familyName hash] ^ [_signatureDate hash];
+    return [_identifier hash] ^ [_title hash] ^ [_givenName hash] ^ [_familyName hash] ^ [_birthdate hash] ^ [_signatureDate hash];
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone {
@@ -136,6 +139,7 @@
     sig.title = [_title copy];
     sig.givenName = [_givenName copy];
     sig.familyName = [_familyName copy];
+    sig.birthdate = [_birthdate copy];
     sig->_requiresName = _requiresName;
     sig->_requiresSignatureImage = _requiresSignatureImage;
     sig.signatureImage = _signatureImage;

@@ -1140,12 +1140,28 @@ static const CGFloat HorizontalMargin = 15.0;
     return YES;
 }
 
+-(void)doneTyping
+{
+    [self.textField resignFirstResponder];
+    return;
+}
+
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
     BOOL shouldBeginEditing = [super textFieldShouldBeginEditing:textField];
     
     if (shouldBeginEditing) {
         if (self.textFieldView.inputView == nil) {
             self.textField.inputView = self.picker.pickerView;
+            
+            UIToolbar* keyboardToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 400, 44)];
+            UIBarButtonItem *buttonOne = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+            
+            UIBarButtonItem *buttonTwo = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered target:self action:@selector(doneTyping)];
+            
+            NSArray *buttons = [NSArray arrayWithObjects: buttonOne, buttonTwo, nil];
+            [keyboardToolbar setItems: buttons animated:NO];
+            
+            [self.textField setInputAccessoryView:keyboardToolbar];
         }
         
         [self.picker pickerWillAppear];
@@ -1153,6 +1169,7 @@ static const CGFloat HorizontalMargin = 15.0;
     
     return shouldBeginEditing;
 }
+
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     return NO;

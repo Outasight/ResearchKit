@@ -62,6 +62,7 @@ typedef NS_ENUM(NSInteger, ORKConsentReviewPhase) {
     
     NSString *_signatureFirst;
     NSString *_signatureLast;
+    NSDate *_signatureBirth;
     UIImage *_signatureImage;
     BOOL _documentReviewed;
     
@@ -78,6 +79,7 @@ typedef NS_ENUM(NSInteger, ORKConsentReviewPhase) {
     if (self) {
         _signatureFirst = [result.signature givenName];
         _signatureLast = [result.signature familyName];
+        _signatureBirth = [result.signature birthdate];
         _signatureImage = [result.signature signatureImage];
         _documentReviewed = NO;
         
@@ -158,6 +160,7 @@ typedef NS_ENUM(NSInteger, ORKConsentReviewPhase) {
 static NSString *const _NameFormIdentifier = @"nameForm";
 static NSString *const _GivenNameIdentifier = @"given";
 static NSString *const _FamilyNameIdentifier = @"family";
+static NSString *const _BirthdateIdentifier = @"birthdate";
 
 - (ORKFormStepViewController *)makeNameFormViewController {
     ORKFormStep *formStep = [[ORKFormStep alloc] initWithIdentifier:_NameFormIdentifier
@@ -180,12 +183,23 @@ static NSString *const _FamilyNameIdentifier = @"family";
                                                      answerFormat:nameAnswerFormat];
     familyNameFormItem.placeholder = ORKLocalizedString(@"CONSENT_NAME_PLACEHOLDER", nil);
     
+    /*ORKFormItem *birthdateFormItem = [[ORKFormItem alloc] initWithIdentifier:_BirthdateIdentifier
+                                                                         text:ORKLocalizedString(@"CONSENT_NAME_FAMILY", nil)
+                                                                 answerFormat:nameAnswerFormat];
+    birthdateFormItem.placeholder = ORKLocalizedString(@"CONSENT_NAME_PLACEHOLDER", nil);*/
+    
+    ORKDateAnswerFormat *dateAnswerFormat = [ORKDateAnswerFormat dateAnswerFormat];
+    ORKFormItem *birthdateFormItem = [[ORKFormItem alloc] initWithIdentifier:_BirthdateIdentifier
+                                                                         text:ORKLocalizedString(@"DOB_FORM_ITEM_TITLE", nil)
+                                                                 answerFormat:dateAnswerFormat];
+    
     givenNameFormItem.optional = NO;
     familyNameFormItem.optional = NO;
+    birthdateFormItem.optional = NO;
     
-    NSArray *formItems = @[givenNameFormItem, familyNameFormItem];
+    NSArray *formItems = @[givenNameFormItem, familyNameFormItem, birthdateFormItem];
     if (ORKCurrentLocalePresentsFamilyNameFirst()) {
-        formItems = @[familyNameFormItem, givenNameFormItem];
+        formItems = @[familyNameFormItem, givenNameFormItem, birthdateFormItem];
     }
     
     [formStep setFormItems:formItems];
@@ -196,6 +210,13 @@ static NSString *const _FamilyNameIdentifier = @"family";
     givenNameDefault.textAnswer = _signatureFirst;
     ORKTextQuestionResult *familyNameDefault = [[ORKTextQuestionResult alloc] initWithIdentifier:_FamilyNameIdentifier];
     familyNameDefault.textAnswer = _signatureLast;
+    /*ORKTextQuestionResult *birthdateDefault = [[ORKTextQuestionResult alloc] initWithIdentifier:_BirthdateIdentifier];
+    birthdateDefault.textAnswer = _signatureLast;*/
+
+    /*ORKDateQuestionResult *birthdateDefault = [[ORKDateQuestionResult alloc] initWithIdentifier:_BirthdateIdentifier];
+    birthdateDefault.dateAnswer = _signatureBirth;*/
+    
+    /*ORKStepResult *defaults = [[ORKStepResult alloc] initWithStepIdentifier:_NameFormIdentifier results:@[givenNameDefault, familyNameDefault, birthdateDefault]];*/
     ORKStepResult *defaults = [[ORKStepResult alloc] initWithStepIdentifier:_NameFormIdentifier results:@[givenNameDefault, familyNameDefault]];
     
     ORKFormStepViewController *viewController = [[ORKFormStepViewController alloc] initWithStep:formStep result:defaults];
@@ -219,6 +240,7 @@ static NSString *const _FamilyNameIdentifier = @"family";
         if (signature.requiresName) {
             signature.givenName = _signatureFirst;
             signature.familyName = _signatureLast;
+            signature.birthdate = _signatureBirth;
         }
     }
     
@@ -281,6 +303,7 @@ static NSString *const _FamilyNameIdentifier = @"family";
         if (_currentSignature.requiresName) {
             _currentSignature.givenName = _signatureFirst;
             _currentSignature.familyName = _signatureLast;
+            _currentSignature.birthdate = _signatureBirth;
         }
         if (_currentSignature.requiresSignatureImage) {
             _currentSignature.signatureImage = _signatureImage;
@@ -389,6 +412,14 @@ static NSString *const _FamilyNameIdentifier = @"family";
         _signatureFirst = (NSString *)fnr.textAnswer;
         ORKTextQuestionResult *lnr = (ORKTextQuestionResult *)[result resultForIdentifier:_FamilyNameIdentifier];
         _signatureLast = (NSString *)lnr.textAnswer;
+        ORKDateQuestionResult *bnr = (ORKDateQuestionResult *)[result resultForIdentifier:_BirthdateIdentifier];
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        [formatter setDateFormat:@"yyyy-MM-dd"];
+        
+        NSString *stringFromDate = [formatter stringFromDate:bnr.dateAnswer];
+        
+        /*_signatureBirth = bnr.dateAnswer;*/
+        _signatureBirth = stringFromDate;
         [self notifyDelegateOnResultChange];
     }
 }
@@ -429,6 +460,7 @@ static NSString *const _FamilyNameIdentifier = @"family";
 - (void)consentReviewControllerDidCancel:(ORKConsentReviewController *)consentReviewController {
     _signatureFirst = nil;
     _signatureLast = nil;
+    _signatureBirth = nil;
     _signatureImage = nil;
     _documentReviewed = NO;
     [self notifyDelegateOnResultChange];
@@ -452,6 +484,7 @@ static NSString *const _FamilyNameIdentifier = @"family";
 static NSString *const _ORKCurrentSignatureRestoreKey = @"currentSignature";
 static NSString *const _ORKSignatureFirstRestoreKey = @"signatureFirst";
 static NSString *const _ORKSignatureLastRestoreKey = @"signatureLast";
+static NSString *const _ORKSignatureBirthRestoreKey = @"signatureBirth";
 static NSString *const _ORKSignatureImageRestoreKey = @"signatureImage";
 static NSString *const _ORKDocumentReviewedRestoreKey = @"documentReviewed";
 static NSString *const _ORKCurrentPageIndexRestoreKey = @"currentPageIndex";
@@ -462,6 +495,7 @@ static NSString *const _ORKCurrentPageIndexRestoreKey = @"currentPageIndex";
     [coder encodeObject:_currentSignature forKey:_ORKCurrentSignatureRestoreKey];
     [coder encodeObject:_signatureFirst forKey:_ORKSignatureFirstRestoreKey];
     [coder encodeObject:_signatureLast forKey:_ORKSignatureLastRestoreKey];
+    [coder encodeObject:_signatureBirth forKey:_ORKSignatureBirthRestoreKey];
     [coder encodeObject:_signatureImage forKey:_ORKSignatureImageRestoreKey];
     [coder encodeBool:_documentReviewed forKey:_ORKDocumentReviewedRestoreKey];
     [coder encodeInteger:_currentPageIndex forKey:_ORKCurrentPageIndexRestoreKey];
@@ -475,6 +509,7 @@ static NSString *const _ORKCurrentPageIndexRestoreKey = @"currentPageIndex";
     
     _signatureFirst = [coder decodeObjectOfClass:[NSString class] forKey:_ORKSignatureFirstRestoreKey];
     _signatureLast = [coder decodeObjectOfClass:[NSString class] forKey:_ORKSignatureLastRestoreKey];
+    _signatureBirth = [coder decodeObjectOfClass:[NSDate class] forKey:_ORKSignatureBirthRestoreKey];
     _signatureImage = [coder decodeObjectOfClass:[NSString class] forKey:_ORKSignatureImageRestoreKey];
     _documentReviewed = [coder decodeBoolForKey:_ORKDocumentReviewedRestoreKey];
     _currentPageIndex = [coder decodeIntegerForKey:_ORKCurrentPageIndexRestoreKey];

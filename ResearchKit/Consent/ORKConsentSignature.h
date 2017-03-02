@@ -129,6 +129,8 @@ ORK_CLASS_AVAILABLE
 /// The family name (last name in Western languages)
 @property (nonatomic, copy, nullable) NSString *familyName;
 
+@property (nonatomic, copy, nullable) NSString *birthdate;
+
 /// The image of the signature, if any.
 @property (nonatomic, copy, nullable) UIImage *signatureImage;
 

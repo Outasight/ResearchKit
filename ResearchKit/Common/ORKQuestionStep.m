@@ -146,9 +146,14 @@
     return YES;
 }
 
-- (BOOL)isFormatImmediateNavigation {
+/*- (BOOL)isFormatImmediateNavigation {
     ORKQuestionType questionType = self.questionType;
     return (self.optional == NO) && ((questionType == ORKQuestionTypeBoolean) || (questionType == ORKQuestionTypeSingleChoice));
+}*/
+
+- (BOOL)isFormatImmediateNavigation {
+    ORKQuestionType questionType = self.questionType;
+    return (self.optional == NO) && (questionType == ORKQuestionTypeBoolean);
 }
 
 - (BOOL)isFormatChoiceWithImageOptions {
